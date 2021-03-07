@@ -1,3 +1,5 @@
+import csv
+from django.http import HttpResponse
 from .models import User
 from .serializers import UserSerializer
 from rest_framework.decorators import api_view
@@ -49,3 +51,21 @@ def user_detail(request, pk):
     elif request.method == 'DELETE':
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def csv_database_write(request):
+
+    # Get all data from User Databse Table
+    users = User.objects.all()
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="csv_database_write.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['id', 'title', 'email', 'date'])
+
+    for user in users:
+        writer.writerow([user.id, user.title, user.email, user.date])
+
+    return response
